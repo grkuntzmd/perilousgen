@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Perilous Wilds Generator</title>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="height=device-height, width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/uikit/3.0.2/css/uikit.min.css" integrity="sha256-n8XuOdrErjqI3P8cqLrISgNKTcBn+I44WX+yg6oOlOo=" crossorigin="anonymous" />
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.0/css/all.css" integrity="sha384-lZN37f5QGtY3VHgisS14W3ExzMWZxybE1SJSEsQp9S+oqd12jhcu+A56Ebc1zFSJ" crossorigin="anonymous">
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/uikit/3.0.2/js/uikit.min.js" integrity="sha256-wcZzyJpZ+EPgMjkMouCuywNNYTSoDJAqLESNqr3v4Jc=" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/uikit/3.0.2/js/uikit-icons.js" integrity="sha256-0I/xsn7onoQr665iCI1xThA1Jt4hV0KqDHLrnmtDXHI=" crossorigin="anonymous"></script>
+
+    <!-- From https://evansalter.com/blog/github-pages-and-single-page-apps/ -->
+    <script>
+        (function() {
+            var redirect = sessionStorage.redirect;
+            delete sessionStorage.redirect;
+            if (redirect && redirect != location.href) {
+                history.replaceState(null, null, redirect);
+            }
+        })();
+    </script>
+
+    <style>
+        .dungeon-theme {
+            align-items: stretch;
+            display: grid;
+            grid-gap: 10px 10px;
+            grid-template: auto / auto 1fr auto;
+            justify-items: start;
+        }
+        
+        .pad-left {
+            padding-left: 10px;
+        }
+        
+        .text-indent-2em {
+            text-indent: 2em;
+        }
+        
+        .uk-accordion>:nth-child(n+2) {
+            margin-top: 5px !important;
+        }
+        
+        .uk-accordion-content {
+            margin-top: 5px !important;
+        }
+        
+        .uk-navbar-nav>li>a {
+            min-height: 40px !important;
+        }
+        
+        *+ul {
+            margin-top: 0 !important;
+        }
+    </style>
+</head>
+
+<body>
+    <main></main>
+
+    <script src="app.js"></script>
+    <script>
+        var app = Elm.Main.init({
+            node: document.querySelector("main")
+        });
+    </script>
+</body>
+
+</html>
