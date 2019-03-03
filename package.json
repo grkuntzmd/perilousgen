@@ -14,7 +14,7 @@
     "scripts": {
         "build": "clear; yarn copy && yarn run-elm && yarn uglify-compress && yarn uglify-mangle",
         "copy": "cp src/index.html src/404.html docs",
-        "run-elm": "elm make src/Main.elm --output docs/app.js",
+        "run-elm": "elm make src/Main.elm --output docs/app.js --optimize",
         "uglify-compress": "uglifyjs docs/app.js --compress 'pure_funcs=\"F2,F3,F4,F5,F6,F7,F8,F9,A2,A3,A4,A5,A6,A7,A8,A9\",pure_getters=true,keep_fargs=false,unsafe_comps=true,unsafe=true,passes=2' --output=docs/app.js",
         "uglify-mangle": "uglifyjs docs/app.js --mangle --output=docs/app.js",
         "watch": "watch 'yarn build' ./src"

@@ -2,7 +2,7 @@ module Tables exposing
     ( Count(..)
     , GenRandomMsg
     , OffsetPayload(..)
-    , TableMsg
+    , SelectMsg
     , TableType(..)
     , complexView
     , complexWithChildrenView
@@ -10,7 +10,7 @@ module Tables exposing
     , simpleWithChildrenView
     )
 
-import Html exposing (Html, a, button, div, i, li, span, text, ul)
+import Html exposing (Attribute, Html, a, button, div, i, li, node, span, text, ul)
 import Html.Attributes exposing (attribute, class, classList, href, type_)
 import Html.Events exposing (onClick)
 import List.Extra as List
@@ -40,18 +40,18 @@ type alias GenRandomMsg msg =
     TableType -> msg
 
 
-type alias TableMsg msg =
+type alias SelectMsg msg =
     TableType -> String -> msg
 
 
 complexView :
     (m -> Maybe String)
     -> m
-    -> TableMsg msg
+    -> SelectMsg msg
     -> GenRandomMsg msg
     -> String
     -> TableType
-    -> List ( String, Int, List ( Int, String, Maybe (Count (m -> TableMsg msg -> List (Html msg))) ) )
+    -> List ( String, Int, List ( Int, String, Maybe (Count (m -> SelectMsg msg -> List (Html msg))) ) )
     -> List (Html msg)
 complexView field model selectMsg genMsg title tableType table =
     let
@@ -67,11 +67,14 @@ complexView field model selectMsg genMsg title tableType table =
                                 (\( _, n, _ ) ->
                                     li
                                         [ classList [ ( "uk-active", Maybe.unwrap False ((==) n) model_ ) ] ]
-                                        [ a
-                                            [ href "/perilousgen#dungeon"
-                                            , onClick (selectMsg tableType n)
+                                        [ closeAnchor
+                                            []
+                                            [ a
+                                                [ href "/perilousgen#dungeon"
+                                                , onClick (selectMsg tableType n)
+                                                ]
+                                                [ text n ]
                                             ]
-                                            [ text n ]
                                         ]
                                 )
                                 entries
@@ -82,7 +85,7 @@ complexView field model selectMsg genMsg title tableType table =
             Maybe.withDefault "none" model_
     in
     [ li []
-        [ div [ class "uk-inline" ]
+        [ div [ class "uk-inline close-after-select" ]
             [ i
                 [ class "fas fa-dice"
                 , onClick (genMsg tableType)
@@ -92,7 +95,7 @@ complexView field model selectMsg genMsg title tableType table =
                 [ class "uk-button uk-button-default uk-margin-small-left uk-button-text", type_ "button" ]
                 [ text title ]
             , div
-                [ attribute "uk-dropdown" "mode: click" ]
+                [ attribute "uk-dropdown" "mode: click", class "uk-dropdown" ]
                 [ ul [ class "uk-nav uk-dropdown-nav" ] items ]
             , span [ class "uk-label uk-margin-small-left" ] [ text name ]
             ]
@@ -103,7 +106,7 @@ complexView field model selectMsg genMsg title tableType table =
 complexWithChildrenView :
     (m -> Maybe String)
     -> m
-    -> TableMsg msg
+    -> SelectMsg msg
     -> GenRandomMsg msg
     -> String
     -> TableType
@@ -117,7 +120,7 @@ complexWithChildrenView :
                 , Maybe
                     (Count
                         (m
-                         -> TableMsg msg
+                         -> SelectMsg msg
                          -> GenRandomMsg msg
                          -> List (Html msg)
                         )
@@ -142,11 +145,14 @@ complexWithChildrenView field model selectMsg genMsg title tableType table =
                                 (\( _, n, _ ) ->
                                     li
                                         [ classList [ ( "uk-active", Maybe.unwrap False ((==) n) model_ ) ] ]
-                                        [ a
-                                            [ href "/perilousgen#dungeon"
-                                            , onClick (selectMsg tableType n)
+                                        [ closeAnchor
+                                            []
+                                            [ a
+                                                [ href "/perilousgen#dungeon"
+                                                , onClick (selectMsg tableType n)
+                                                ]
+                                                [ text n ]
                                             ]
-                                            [ text n ]
                                         ]
                                 )
                                 entries
@@ -157,7 +163,7 @@ complexWithChildrenView field model selectMsg genMsg title tableType table =
             Maybe.withDefault "none" model_
     in
     li []
-        [ div [ class "uk-inline" ]
+        [ div [ class "uk-inline close-after-select" ]
             [ i
                 [ class "fas fa-dice"
                 , onClick (genMsg tableType)
@@ -167,7 +173,7 @@ complexWithChildrenView field model selectMsg genMsg title tableType table =
                 [ class "uk-button uk-button-default uk-margin-small-left uk-button-text", type_ "button" ]
                 [ text title ]
             , div
-                [ attribute "uk-dropdown" "mode: click" ]
+                [ attribute "uk-dropdown" "mode: click", class "uk-dropdown" ]
                 [ ul [ class "uk-nav uk-dropdown-nav" ] items ]
             , span [ class "uk-label uk-margin-small-left" ] [ text name ]
             ]
@@ -187,7 +193,7 @@ complexWithChildrenView field model selectMsg genMsg title tableType table =
 simpleView :
     (m -> Maybe String)
     -> m
-    -> TableMsg msg
+    -> SelectMsg msg
     -> GenRandomMsg msg
     -> String
     -> TableType
@@ -203,11 +209,14 @@ simpleView field model selectMsg genMsg title tableType table =
                 (\( _, n, _ ) ->
                     li
                         [ classList [ ( "uk-active", Maybe.unwrap False ((==) n) model_ ) ] ]
-                        [ a
-                            [ href "/perilousgen#dungeon"
-                            , onClick (selectMsg tableType n)
+                        [ closeAnchor
+                            []
+                            [ a
+                                [ href "/perilousgen#dungeon"
+                                , onClick (selectMsg tableType n)
+                                ]
+                                [ text n ]
                             ]
-                            [ text n ]
                         ]
                 )
                 table
@@ -216,7 +225,7 @@ simpleView field model selectMsg genMsg title tableType table =
             Maybe.withDefault "none" model_
     in
     [ li []
-        [ div [ class "uk-inline" ]
+        [ div [ class "uk-inline close-after-select" ]
             [ i
                 [ class "fas fa-dice"
                 , onClick (genMsg tableType)
@@ -226,7 +235,7 @@ simpleView field model selectMsg genMsg title tableType table =
                 [ class "uk-button uk-button-default uk-margin-small-left uk-button-text", type_ "button" ]
                 [ text title ]
             , div
-                [ attribute "uk-dropdown" "mode: click" ]
+                [ attribute "uk-dropdown" "mode: click", class "uk-dropdown" ]
                 [ ul [ class "uk-nav uk-dropdown-nav" ] items ]
             , span [ class "uk-label uk-margin-small-left" ] [ text name ]
             ]
@@ -237,11 +246,11 @@ simpleView field model selectMsg genMsg title tableType table =
 simpleWithChildrenView :
     (m -> Maybe String)
     -> m
-    -> TableMsg msg
+    -> SelectMsg msg
     -> GenRandomMsg msg
     -> String
     -> TableType
-    -> List ( Int, String, Maybe (Count (m -> TableMsg msg -> GenRandomMsg msg -> List (Html msg))) )
+    -> List ( Int, String, Maybe (Count (m -> SelectMsg msg -> GenRandomMsg msg -> List (Html msg))) )
     -> List (Html msg)
 simpleWithChildrenView field model selectMsg genMsg title tableType table =
     let
@@ -256,11 +265,14 @@ simpleWithChildrenView field model selectMsg genMsg title tableType table =
                 (\( _, n, _ ) ->
                     li
                         [ classList [ ( "uk-active", Maybe.unwrap False ((==) n) model_ ) ] ]
-                        [ a
-                            [ href "/perilousgen#dungeon"
-                            , onClick (selectMsg tableType n)
+                        [ closeAnchor
+                            []
+                            [ a
+                                [ href "/perilousgen#dungeon"
+                                , onClick (selectMsg tableType n)
+                                ]
+                                [ text n ]
                             ]
-                            [ text n ]
                         ]
                 )
                 table
@@ -269,7 +281,7 @@ simpleWithChildrenView field model selectMsg genMsg title tableType table =
             Maybe.withDefault "none" model_
     in
     li []
-        [ div [ class "uk-inline" ]
+        [ div [ class "uk-inline close-after-select" ]
             [ i
                 [ class "fas fa-dice"
                 , onClick (genMsg tableType)
@@ -279,7 +291,7 @@ simpleWithChildrenView field model selectMsg genMsg title tableType table =
                 [ class "uk-button uk-button-default uk-margin-small-left uk-button-text", type_ "button" ]
                 [ text title ]
             , div
-                [ attribute "uk-dropdown" "mode: click" ]
+                [ attribute "uk-dropdown" "mode: click", class "uk-dropdown" ]
                 [ ul [ class "uk-nav uk-dropdown-nav" ] items ]
             , span [ class "uk-label uk-margin-small-left" ] [ text name ]
             ]
@@ -294,3 +306,8 @@ simpleWithChildrenView field model selectMsg genMsg title tableType table =
                 _ ->
                     []
            )
+
+
+closeAnchor : List (Attribute msg) -> List (Html msg) -> Html msg
+closeAnchor attributes children =
+    node "close-anchor" attributes children

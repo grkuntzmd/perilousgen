@@ -4,7 +4,7 @@ import Beast exposing (Beast2Model, beast1View, beast2View)
 import Html exposing (Html)
 import List.Extra as List
 import Maybe.Extra as Maybe
-import Tables exposing (Count(..), GenRandomMsg, TableMsg, TableType(..), complexWithChildrenView)
+import Tables exposing (Count(..), GenRandomMsg, SelectMsg, TableType(..), complexWithChildrenView)
 
 
 type alias HumanoidModel m =
@@ -25,7 +25,7 @@ humanoid :
             , Maybe
                 (Count
                     (Beast2Model m
-                     -> TableMsg msg
+                     -> SelectMsg msg
                      -> GenRandomMsg msg
                      -> List (Html msg)
                     )
@@ -68,7 +68,7 @@ humanoid =
 humanoidView :
     (HumanoidModel m -> Maybe String)
     -> HumanoidModel m
-    -> TableMsg msg
+    -> SelectMsg msg
     -> GenRandomMsg msg
     -> List (Html msg)
 humanoidView field model selectMsg genMsg =

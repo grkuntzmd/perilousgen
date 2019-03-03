@@ -2,7 +2,7 @@ module DungeonRuination exposing (dungeonRuinationView, select)
 
 import Html exposing (Html)
 import List.Extra as List
-import Tables exposing (GenRandomMsg, TableMsg, TableType(..), simpleView)
+import Tables exposing (GenRandomMsg, SelectMsg, TableType(..), simpleView)
 
 
 type alias DungeonRuinationModel m =
@@ -25,7 +25,7 @@ dungeonRuination =
 dungeonRuinationView :
     (DungeonRuinationModel m -> Maybe String)
     -> DungeonRuinationModel m
-    -> TableMsg msg
+    -> SelectMsg msg
     -> GenRandomMsg msg
     -> List (Html msg)
 dungeonRuinationView field model selectMsg genMsg =

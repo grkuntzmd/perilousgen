@@ -2,7 +2,7 @@ module DungeonFunction exposing (dungeonFunctionView, select)
 
 import Html exposing (Html)
 import List.Extra as List
-import Tables exposing (GenRandomMsg, TableMsg, TableType(..), simpleView)
+import Tables exposing (GenRandomMsg, SelectMsg, TableType(..), simpleView)
 
 
 type alias DungeonFunctionModel m =
@@ -26,7 +26,7 @@ dungeonFunction =
 dungeonFunctionView :
     (DungeonFunctionModel m -> Maybe String)
     -> DungeonFunctionModel m
-    -> TableMsg msg
+    -> SelectMsg msg
     -> GenRandomMsg msg
     -> List (Html msg)
 dungeonFunctionView field model selectMsg genMsg =

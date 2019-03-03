@@ -7,11 +7,11 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="height=device-height, width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no">
 
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/uikit/3.0.2/css/uikit.min.css" integrity="sha256-n8XuOdrErjqI3P8cqLrISgNKTcBn+I44WX+yg6oOlOo=" crossorigin="anonymous" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/uikit/3.0.3/css/uikit.min.css" />
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.0/css/all.css" integrity="sha384-lZN37f5QGtY3VHgisS14W3ExzMWZxybE1SJSEsQp9S+oqd12jhcu+A56Ebc1zFSJ" crossorigin="anonymous">
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/uikit/3.0.2/js/uikit.min.js" integrity="sha256-wcZzyJpZ+EPgMjkMouCuywNNYTSoDJAqLESNqr3v4Jc=" crossorigin="anonymous"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/uikit/3.0.2/js/uikit-icons.js" integrity="sha256-0I/xsn7onoQr665iCI1xThA1Jt4hV0KqDHLrnmtDXHI=" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/uikit/3.0.3/js/uikit.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/uikit/3.0.3/js/uikit-icons.min.js"></script>
 
     <!-- From https://evansalter.com/blog/github-pages-and-single-page-apps/ -->
     <script>
@@ -64,6 +64,19 @@
 
     <script src="app.js"></script>
     <script>
+        customElements.define("close-anchor", class extends HTMLElement {
+            constructor() {
+                super();
+                this.addEventListener("click", function(event) {
+                    var parent = event.target.closest(".close-after-select");
+                    var children = parent.querySelectorAll(".uk-open");
+                    children.forEach(function(el) {
+                        el.classList.remove("uk-open");
+                    })
+                });
+            }
+        });
+
         var app = Elm.Main.init({
             node: document.querySelector("main")
         });

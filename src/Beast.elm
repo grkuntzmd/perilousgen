@@ -3,7 +3,7 @@ module Beast exposing (Beast2Model, beast1View, beast2View, select)
 import Html exposing (Html)
 import List.Extra as List
 import Maybe.Extra as Maybe
-import Tables exposing (Count(..), GenRandomMsg, TableMsg, TableType(..), complexView)
+import Tables exposing (Count(..), GenRandomMsg, SelectMsg, TableType(..), complexView)
 
 
 type alias Beast1Model m =
@@ -73,7 +73,7 @@ beast =
 beast1View :
     (Beast1Model m -> Maybe String)
     -> Beast1Model m
-    -> TableMsg msg
+    -> SelectMsg msg
     -> GenRandomMsg msg
     -> List (Html msg)
 beast1View field model selectMsg genMsg =
@@ -83,7 +83,7 @@ beast1View field model selectMsg genMsg =
 beast2View :
     (Beast2Model m -> Maybe String)
     -> Beast2Model m
-    -> TableMsg msg
+    -> SelectMsg msg
     -> GenRandomMsg msg
     -> List (Html msg)
 beast2View field model selectMsg genMsg =

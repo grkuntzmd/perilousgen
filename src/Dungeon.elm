@@ -89,7 +89,7 @@ update msg model =
                 _ ->
                     ( model, Cmd.none )
 
-        TableMsg tableType name ->
+        SelectMsg tableType name ->
             case tableType of
                 Beast1 ->
                     ( { model | beast1 = Just name }, Cmd.none )
@@ -145,9 +145,9 @@ view model =
                         ]
                     , div [ class "uk-accordion-content" ]
                         (List.concat
-                            [ dungeonBuilderView .builder model TableMsg GenRandomMsg
-                            , dungeonFunctionView .function model TableMsg GenRandomMsg
-                            , dungeonRuinationView .ruination model TableMsg GenRandomMsg
+                            [ dungeonBuilderView .builder model SelectMsg GenRandomMsg
+                            , dungeonFunctionView .function model SelectMsg GenRandomMsg
+                            , dungeonRuinationView .ruination model SelectMsg GenRandomMsg
                             ]
                         )
                     ]
