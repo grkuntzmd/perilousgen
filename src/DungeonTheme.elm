@@ -1,9 +1,12 @@
 module DungeonTheme exposing (DungeonThemeModel, dungeonTheme, dungeonThemeView, select)
 
-import Html exposing (Html)
+import DungeonMsg exposing (Msg(..))
+import Html exposing (Html, a, button, div, i, li, span, text, ul)
+import Html.Attributes exposing (attribute, class, classList, href, type_)
+import Html.Events exposing (onClick)
 import List.Extra as List
 import Maybe.Extra as Maybe
-import Tables exposing (Count(..), GenRandomMsg, SelectMsg, TableType(..), complexView)
+import Tables exposing (Count(..), TableType(..))
 
 
 type alias DungeonThemeModel m =
@@ -66,13 +69,50 @@ dungeonTheme =
 
 
 dungeonThemeView :
-    (DungeonThemeModel m -> Maybe String)
-    -> DungeonThemeModel m
-    -> SelectMsg msg
-    -> GenRandomMsg msg
-    -> List (Html msg)
-dungeonThemeView field model selectMsg genMsg =
-    complexView field model selectMsg genMsg "Theme" DungeonTheme dungeonTheme
+    Maybe String
+    -> Int
+    -> Html Msg
+dungeonThemeView field index =
+    let
+        items =
+            List.concat <|
+                List.map
+                    (\( heading, _, entries ) ->
+                        li [ class "uk-nav-header" ] [ text heading ]
+                            :: List.map
+                                (\( _, n, _ ) ->
+                                    li
+                                        [ classList [ ( "uk-active", Maybe.unwrap False ((==) n) field ) ] ]
+                                        [ a
+                                            [ href "/perilousgen#dungeon"
+                                            , onClick (SelectThemeMsg index n)
+                                            ]
+                                            [ text n ]
+                                        ]
+                                )
+                                entries
+                    )
+                    dungeonTheme
+
+        name =
+            Maybe.withDefault "none" field
+    in
+    li []
+        [ div [ class "uk-inline" ]
+            [ i
+                [ class "fas fa-dice"
+                , onClick (GenThemeMsg index)
+                ]
+                []
+            , button
+                [ class "uk-button uk-button-default uk-margin-small-left uk-button-text", type_ "button" ]
+                [ text ("Theme " ++ String.fromInt (index + 1)) ]
+            , div
+                [ attribute "uk-dropdown" "mode: click", class "uk-dropdown" ]
+                [ ul [ class "uk-nav uk-dropdown-nav" ] items ]
+            , span [ class "uk-label uk-margin-small-left" ] [ text name ]
+            ]
+        ]
 
 
 select : ( Int, Int ) -> Maybe String

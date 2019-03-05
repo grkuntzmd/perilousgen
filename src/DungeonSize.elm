@@ -1,7 +1,7 @@
 module DungeonSize exposing (DungeonSizeModel, DungeonSizeRow, dungeonSize, dungeonSizeView, select)
 
 import DungeonMsg exposing (Msg(..))
-import DungeonTheme
+import DungeonTheme exposing (dungeonThemeView)
 import Html exposing (Html, a, button, div, i, li, span, text, ul)
 import Html.Attributes exposing (attribute, class, classList, href, type_)
 import Html.Events exposing (onClick)
@@ -116,8 +116,14 @@ dungeonSizeView model selectMsg genMsg =
                     , areaDieMod = 0
                     }
 
+        themesStart =
+            1 + defaults.themeDieMod
+
+        themesEnd =
+            defaults.themeDie + defaults.themeDieMod
+
         themeCounts =
-            List.range (1 + defaults.themeDieMod) (defaults.themeDie + defaults.themeDieMod)
+            List.range themesStart themesEnd
                 |> List.map
                     (\i ->
                         li
@@ -130,8 +136,14 @@ dungeonSizeView model selectMsg genMsg =
                             ]
                     )
 
+        areasStart =
+            1 + defaults.areaDieMod
+
+        areasEnd =
+            defaults.areaDieCount * 6 + defaults.areaDieMod
+
         areaCounts =
-            List.range (1 + defaults.areaDieMod) (defaults.areaDieCount * 6 + defaults.areaDieMod)
+            List.range areasStart areasEnd
                 |> List.map
                     (\i ->
                         li
@@ -144,9 +156,12 @@ dungeonSizeView model selectMsg genMsg =
                             ]
                     )
 
-        -- themes =
-        --     List.indexedMap (\i n ->
-        --     ) model.themes
+        themes =
+            List.indexedMap
+                (\i n ->
+                    dungeonThemeView n i
+                )
+                model.themes
     in
     [ li []
         [ div [ class "uk-inline" ]
@@ -168,7 +183,7 @@ dungeonSizeView model selectMsg genMsg =
         [ div [ class "uk-inline" ]
             [ i
                 [ class "fas fa-dice"
-                , onClick (genMsg DungeonSize)
+                , onClick (GenThemesMsg themesStart themesEnd)
                 ]
                 []
             , button
@@ -184,7 +199,7 @@ dungeonSizeView model selectMsg genMsg =
         [ div [ class "uk-inline" ]
             [ i
                 [ class "fas fa-dice"
-                , onClick (genMsg DungeonSize)
+                , onClick (GenAreasMsg areasStart areasEnd)
                 ]
                 []
             , button
@@ -197,8 +212,9 @@ dungeonSizeView model selectMsg genMsg =
             ]
         ]
     ]
+        ++ themes
 
 
-select : Int -> Maybe String
+select : Int -> Maybe DungeonSizeRow
 select offset_ =
-    Maybe.map .name (List.find (\{ offset } -> offset >= offset_) dungeonSize)
+    List.find (\{ offset } -> offset >= offset_) dungeonSize

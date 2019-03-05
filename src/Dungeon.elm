@@ -5,10 +5,13 @@ import DungeonBuilder exposing (dungeonBuilderView)
 import DungeonFunction exposing (dungeonFunctionView)
 import DungeonMsg exposing (Msg(..))
 import DungeonRuination exposing (dungeonRuinationView)
-import DungeonSize exposing (dungeonSizeView)
+import DungeonSize exposing (dungeonSize, dungeonSizeView)
+import DungeonTheme
 import Html exposing (Html, a, div, i, li, nav, span, text, ul)
 import Html.Attributes exposing (attribute, class, href)
 import Humanoid
+import List.Extra as List
+import Maybe.Extra as Maybe
 import Random
 import Tables exposing (OffsetPayload(..), TableType(..))
 
@@ -45,9 +48,6 @@ init =
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
-        GenAreasMsg ->
-            ( model, Cmd.none )
-
         GenRandomMsg tableType ->
             case tableType of
                 Beast1 ->
@@ -79,9 +79,6 @@ update msg model =
                     , Random.generate (Pair >> OffsetMsg Humanoid) (Random.pair (Random.int 1 12) (Random.int 1 12))
                     )
 
-        GenThemesMsg ->
-            ( model, Cmd.none )
-
         OffsetMsg tableType payload ->
             case ( tableType, payload ) of
                 ( Beast1, Pair offset ) ->
@@ -100,16 +97,32 @@ update msg model =
                     ( { model | ruination = DungeonRuination.select offset }, Cmd.none )
 
                 ( DungeonSize, Singleton offset ) ->
-                    ( { model | size = DungeonSize.select offset }, Cmd.none )
+                    let
+                        row =
+                            DungeonSize.select offset
+
+                        size =
+                            Maybe.map .name row
+
+                        themes =
+                            Maybe.unwrap [] (\r -> List.repeat r.themeCount Nothing) row
+
+                        areas =
+                            Maybe.unwrap [] (\r -> List.repeat r.areaCount Nothing) row
+                    in
+                    ( { model
+                        | size = size
+                        , themes = themes
+                        , areas = areas
+                      }
+                    , Cmd.none
+                    )
 
                 ( Humanoid, Pair offset ) ->
                     ( { model | humanoid = Humanoid.select offset }, Cmd.none )
 
                 _ ->
                     ( model, Cmd.none )
-
-        SelectAreasMsg value ->
-            ( { model | areas = List.repeat value Nothing }, Cmd.none )
 
         SelectMsg tableType name ->
             case tableType of
@@ -136,10 +149,54 @@ update msg model =
                     ( { model | ruination = Just name }, Cmd.none )
 
                 DungeonSize ->
-                    ( { model | size = Just name }, Cmd.none )
+                    let
+                        row =
+                            List.find (.name >> (==) name) dungeonSize
+
+                        themes =
+                            Maybe.unwrap [] (\r -> List.repeat r.themeCount Nothing) row
+
+                        areas =
+                            Maybe.unwrap [] (\r -> List.repeat r.areaCount Nothing) row
+                    in
+                    ( { model
+                        | size = Just name
+                        , themes = themes
+                        , areas = areas
+                      }
+                    , Cmd.none
+                    )
 
                 Humanoid ->
                     ( { model | humanoid = Just name, beast1 = Nothing, beast2 = Nothing }, Cmd.none )
+
+        -- Areas
+        GenAreasMsg start end ->
+            ( model, Random.generate OffsetAreasMsg (Random.int start end) )
+
+        OffsetAreasMsg value ->
+            ( { model | areas = List.repeat value Nothing }, Cmd.none )
+
+        SelectAreasMsg value ->
+            ( { model | areas = List.repeat value Nothing }, Cmd.none )
+
+        -- Themes
+        GenThemeMsg index ->
+            ( model
+            , Random.generate (OffsetThemeMsg index) (Random.pair (Random.int 1 12) (Random.int 1 12))
+            )
+
+        GenThemesMsg start end ->
+            ( model, Random.generate OffsetThemesMsg (Random.int start end) )
+
+        OffsetThemeMsg index offset ->
+            ( { model | themes = List.setAt index (DungeonTheme.select offset) model.themes }, Cmd.none )
+
+        OffsetThemesMsg value ->
+            ( { model | themes = List.repeat value Nothing }, Cmd.none )
+
+        SelectThemeMsg index name ->
+            ( { model | themes = List.setAt index (Just name) model.themes }, Cmd.none )
 
         SelectThemesMsg value ->
             ( { model | themes = List.repeat value Nothing }, Cmd.none )
