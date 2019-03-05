@@ -5,6 +5,7 @@ import DungeonTheme exposing (dungeonThemeView)
 import Html exposing (Html, a, button, div, i, li, span, text, ul)
 import Html.Attributes exposing (attribute, class, classList, href, type_)
 import Html.Events exposing (onClick)
+import Icons exposing (dice)
 import List.Extra as List
 import Maybe.Extra as Maybe
 import Tables exposing (GenRandomMsg, SelectMsg, TableType(..))
@@ -165,11 +166,7 @@ dungeonSizeView model selectMsg genMsg =
     in
     [ li []
         [ div [ class "uk-inline" ]
-            [ i
-                [ class "fas fa-dice"
-                , onClick (genMsg DungeonSize)
-                ]
-                []
+            [ span [ onClick (genMsg DungeonSize) ] [ Icons.dice ]
             , button
                 [ class "uk-button uk-button-default uk-margin-small-left uk-button-text", type_ "button" ]
                 [ text "Size" ]
@@ -181,11 +178,7 @@ dungeonSizeView model selectMsg genMsg =
         ]
     , li []
         [ div [ class "uk-inline" ]
-            [ i
-                [ class "fas fa-dice"
-                , onClick (GenThemesMsg themesStart themesEnd)
-                ]
-                []
+            [ span [ onClick (GenThemesMsg themesStart themesEnd) ] [ Icons.dice ]
             , button
                 [ class "uk-button uk-button-default uk-margin-small-left uk-button-text", type_ "button" ]
                 [ text "Themes" ]
@@ -197,11 +190,7 @@ dungeonSizeView model selectMsg genMsg =
         ]
     , li []
         [ div [ class "uk-inline" ]
-            [ i
-                [ class "fas fa-dice"
-                , onClick (GenAreasMsg areasStart areasEnd)
-                ]
-                []
+            [ span [ onClick (GenAreasMsg areasStart areasEnd) ] [ Icons.dice ]
             , button
                 [ class "uk-button uk-button-default uk-margin-small-left uk-button-text", type_ "button" ]
                 [ text "Areas" ]

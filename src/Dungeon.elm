@@ -7,9 +7,10 @@ import DungeonMsg exposing (Msg(..))
 import DungeonRuination exposing (dungeonRuinationView)
 import DungeonSize exposing (dungeonSize, dungeonSizeView)
 import DungeonTheme
-import Html exposing (Html, a, div, i, li, nav, span, text, ul)
-import Html.Attributes exposing (attribute, class, href)
+import Html exposing (Html, a, br, div, i, input, li, nav, span, text, ul)
+import Html.Attributes exposing (attribute, class, href, placeholder, style, type_)
 import Humanoid
+import Icons exposing (file, home)
 import List.Extra as List
 import Maybe.Extra as Maybe
 import Random
@@ -88,7 +89,14 @@ update msg model =
                     ( { model | beast2 = Beast.select offset }, Cmd.none )
 
                 ( DungeonBuilder, Singleton offset ) ->
-                    ( { model | builder = DungeonBuilder.select offset }, Cmd.none )
+                    ( { model
+                        | builder = DungeonBuilder.select offset
+                        , humanoid = Nothing
+                        , beast1 = Nothing
+                        , beast2 = Nothing
+                      }
+                    , Cmd.none
+                    )
 
                 ( DungeonFunction, Singleton offset ) ->
                     ( { model | function = DungeonFunction.select offset }, Cmd.none )
@@ -119,7 +127,13 @@ update msg model =
                     )
 
                 ( Humanoid, Pair offset ) ->
-                    ( { model | humanoid = Humanoid.select offset }, Cmd.none )
+                    ( { model
+                        | humanoid = Humanoid.select offset
+                        , beast1 = Nothing
+                        , beast2 = Nothing
+                      }
+                    , Cmd.none
+                    )
 
                 _ ->
                     ( model, Cmd.none )
@@ -204,7 +218,8 @@ update msg model =
 
 view : Model -> Html Msg
 view model =
-    div [ attribute "uk-grid" "", class "uk-child-width-1-2@s uk-padding-small" ]
+    div
+        [ class "uk-flex uk-flex-top uk-flex-wrap uk-child-width-1-2@s uk-padding-small" ]
         [ div [ class "uk-container uk-container-expand" ]
             [ ul [ attribute "uk-accordion" "" ]
                 [ li []
@@ -214,8 +229,8 @@ view model =
                                 [ span [ class "uk-text-large" ] [ text "Dungeon" ] ]
                             , div [ class "uk-navbar-right" ]
                                 [ ul [ class "uk-navbar-nav" ]
-                                    [ li [] [ a [ href "/perilousgen#dungeon" ] [ i [ class "fas fa-file-alt" ] [] ] ]
-                                    , li [] [ a [ href "/" ] [ i [ class "fas fa-home" ] [] ] ]
+                                    [ li [] [ a [ href "/perilousgen#dungeon" ] [ span [] [ Icons.file ] ] ]
+                                    , li [] [ a [ href "/" ] [ span [] [ Icons.home ] ] ]
                                     ]
                                 ]
                             ]
@@ -233,4 +248,29 @@ view model =
             , div [ class "uk-flex uk-flex-column uk-flex-between uk-flex-stretch uk-margin-small-top" ]
                 []
             ]
+        , summaryView model
+        ]
+
+
+summaryView : Model -> Html Msg
+summaryView model =
+    let
+        builder =
+            div [] [ text ("BUILDER: " ++ Maybe.withDefault "none" model.builder) ]
+                :: Maybe.unwrap [] (\v -> [ div [] [ text ("HUMANOID: " ++ v) ] ]) model.humanoid
+                ++ Maybe.unwrap [] (\v -> [ div [] [ text ("BEAST: " ++ v) ] ]) model.beast1
+                ++ Maybe.unwrap [] (\v -> [ div [] [ text ("BEAST: " ++ v) ] ]) model.beast2
+    in
+    div [ class "uk-flex uk-flex-column uk-flex-between uk-flex-stretch", style "transform" "unset" ]
+        [ div [ class "uk-flex uk-flex-between uk-flex-stretch" ]
+            [ input [ class "uk-input uk-flex-1", placeholder "Name", type_ "text" ] []
+            , span [ attribute "uk-icon" "trash", class "pad-left" ] []
+            ]
+        , div [ class "uk-margin-small-top" ] builder
+        , div [] [ text ("FUNCTION: " ++ Maybe.withDefault "none" model.function) ]
+        , div [] [ text ("SIZE: " ++ Maybe.withDefault "none" model.size) ]
+        , div [] [ text ("RUINATION: " ++ Maybe.withDefault "none" model.ruination) ]
+
+        -- , dl [ class "uk-description-list" ]
+        --     (List.map (Html.map ThemeMsg) (DungeonTheme.summaryView model.theme))
         ]

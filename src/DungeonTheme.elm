@@ -4,6 +4,7 @@ import DungeonMsg exposing (Msg(..))
 import Html exposing (Html, a, button, div, i, li, span, text, ul)
 import Html.Attributes exposing (attribute, class, classList, href, type_)
 import Html.Events exposing (onClick)
+import Icons exposing (dice)
 import List.Extra as List
 import Maybe.Extra as Maybe
 import Tables exposing (Count(..), TableType(..))
@@ -99,11 +100,7 @@ dungeonThemeView field index =
     in
     li []
         [ div [ class "uk-inline" ]
-            [ i
-                [ class "fas fa-dice"
-                , onClick (GenThemeMsg index)
-                ]
-                []
+            [ span [ onClick (GenThemeMsg index) ] [ Icons.dice ]
             , button
                 [ class "uk-button uk-button-default uk-margin-small-left uk-button-text", type_ "button" ]
                 [ text ("Theme " ++ String.fromInt (index + 1)) ]
