@@ -3,7 +3,7 @@ module DungeonBuilder exposing (dungeonBuilderView, select)
 import Html exposing (Html)
 import Humanoid exposing (HumanoidModel)
 import List.Extra as List
-import Tables exposing (Count(..), GenRandomMsg, SelectMsg, TableType(..), simpleWithChildrenView)
+import Tables exposing (Count(..), GenRandomMsg, SelectMsg, TableType(..), simpleView)
 
 
 type alias DungeonBuilderModel m =
@@ -48,7 +48,7 @@ dungeonBuilderView :
     -> GenRandomMsg msg
     -> List (Html msg)
 dungeonBuilderView field model selectMsg genMsg =
-    simpleWithChildrenView field model selectMsg genMsg "Builder" DungeonBuilder dungeonBuilder
+    simpleView field model selectMsg genMsg "Builder" DungeonBuilder dungeonBuilder
 
 
 select : Int -> Maybe String

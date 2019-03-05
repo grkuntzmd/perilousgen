@@ -1,9 +1,18 @@
-module DungeonTheme exposing (dungeonTheme)
+module DungeonTheme exposing (DungeonThemeModel, dungeonTheme, dungeonThemeView, select)
 
 import Html exposing (Html)
-import Tables exposing (TableType(..))
+import List.Extra as List
+import Maybe.Extra as Maybe
+import Tables exposing (Count(..), GenRandomMsg, SelectMsg, TableType(..), complexView)
 
 
+type alias DungeonThemeModel m =
+    { m
+        | theme : Maybe String
+    }
+
+
+dungeonTheme : List ( String, Int, List ( Int, String, Maybe x ) )
 dungeonTheme =
     [ ( "Mundane"
       , 5
@@ -54,3 +63,24 @@ dungeonTheme =
         ]
       )
     ]
+
+
+dungeonThemeView :
+    (DungeonThemeModel m -> Maybe String)
+    -> DungeonThemeModel m
+    -> SelectMsg msg
+    -> GenRandomMsg msg
+    -> List (Html msg)
+dungeonThemeView field model selectMsg genMsg =
+    complexView field model selectMsg genMsg "Theme" DungeonTheme dungeonTheme
+
+
+select : ( Int, Int ) -> Maybe String
+select offset =
+    List.find (\( _, f, _ ) -> f >= Tuple.first offset) dungeonTheme
+        |> Maybe.map
+            (\( _, _, l ) ->
+                List.find (\( s, _, _ ) -> s >= Tuple.second offset) l
+            )
+        |> Maybe.join
+        |> Maybe.map (\( _, n, _ ) -> n)

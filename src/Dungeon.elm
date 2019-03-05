@@ -1,15 +1,14 @@
-module Dungeon exposing (Model, init, onClickNoProp, update, view)
+module Dungeon exposing (Model, init, update, view)
 
 import Beast
 import DungeonBuilder exposing (dungeonBuilderView)
 import DungeonFunction exposing (dungeonFunctionView)
 import DungeonMsg exposing (Msg(..))
 import DungeonRuination exposing (dungeonRuinationView)
-import Html exposing (Attribute, Html, a, div, i, li, nav, span, text, ul)
+import DungeonSize exposing (dungeonSizeView)
+import Html exposing (Html, a, div, i, li, nav, span, text, ul)
 import Html.Attributes exposing (attribute, class, href)
-import Html.Events exposing (stopPropagationOn)
 import Humanoid
-import Json.Decode as Json
 import Random
 import Tables exposing (OffsetPayload(..), TableType(..))
 
@@ -22,6 +21,9 @@ type alias Model =
     , beast1 : Maybe String
     , beast2 : Maybe String
     , ruination : Maybe String
+    , size : Maybe String
+    , themes : List (Maybe String)
+    , areas : List (Maybe String)
     }
 
 
@@ -34,12 +36,18 @@ init =
     , beast1 = Nothing
     , beast2 = Nothing
     , ruination = Nothing
+    , size = Nothing
+    , themes = []
+    , areas = []
     }
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
+        GenAreasMsg ->
+            ( model, Cmd.none )
+
         GenRandomMsg tableType ->
             case tableType of
                 Beast1 ->
@@ -61,10 +69,18 @@ update msg model =
                 DungeonRuination ->
                     ( model, Random.generate (Singleton >> OffsetMsg DungeonRuination) (Random.int 1 12) )
 
+                DungeonSize ->
+                    ( model
+                    , Random.generate (Singleton >> OffsetMsg DungeonSize) (Random.int 1 12)
+                    )
+
                 Humanoid ->
                     ( model
                     , Random.generate (Pair >> OffsetMsg Humanoid) (Random.pair (Random.int 1 12) (Random.int 1 12))
                     )
+
+        GenThemesMsg ->
+            ( model, Cmd.none )
 
         OffsetMsg tableType payload ->
             case ( tableType, payload ) of
@@ -83,11 +99,17 @@ update msg model =
                 ( DungeonRuination, Singleton offset ) ->
                     ( { model | ruination = DungeonRuination.select offset }, Cmd.none )
 
+                ( DungeonSize, Singleton offset ) ->
+                    ( { model | size = DungeonSize.select offset }, Cmd.none )
+
                 ( Humanoid, Pair offset ) ->
                     ( { model | humanoid = Humanoid.select offset }, Cmd.none )
 
                 _ ->
                     ( model, Cmd.none )
+
+        SelectAreasMsg value ->
+            ( { model | areas = List.repeat value Nothing }, Cmd.none )
 
         SelectMsg tableType name ->
             case tableType of
@@ -113,8 +135,14 @@ update msg model =
                 DungeonRuination ->
                     ( { model | ruination = Just name }, Cmd.none )
 
+                DungeonSize ->
+                    ( { model | size = Just name }, Cmd.none )
+
                 Humanoid ->
                     ( { model | humanoid = Just name, beast1 = Nothing, beast2 = Nothing }, Cmd.none )
+
+        SelectThemesMsg value ->
+            ( { model | themes = List.repeat value Nothing }, Cmd.none )
 
 
 view : Model -> Html Msg
@@ -129,15 +157,7 @@ view model =
                                 [ span [ class "uk-text-large" ] [ text "Dungeon" ] ]
                             , div [ class "uk-navbar-right" ]
                                 [ ul [ class "uk-navbar-nav" ]
-                                    [ li []
-                                        [ a
-                                            [ href "#"
-
-                                            {- , onClickNoProp GenDungeon -}
-                                            ]
-                                            [ i [ class "fas fa-dice" ] [] ]
-                                        ]
-                                    , li [] [ a [ href "/perilousgen#dungeon" ] [ i [ class "fas fa-file-alt" ] [] ] ]
+                                    [ li [] [ a [ href "/perilousgen#dungeon" ] [ i [ class "fas fa-file-alt" ] [] ] ]
                                     , li [] [ a [ href "/" ] [ i [ class "fas fa-home" ] [] ] ]
                                     ]
                                 ]
@@ -148,6 +168,7 @@ view model =
                             [ dungeonBuilderView .builder model SelectMsg GenRandomMsg
                             , dungeonFunctionView .function model SelectMsg GenRandomMsg
                             , dungeonRuinationView .ruination model SelectMsg GenRandomMsg
+                            , dungeonSizeView model SelectMsg GenRandomMsg
                             ]
                         )
                     ]
@@ -156,8 +177,3 @@ view model =
                 []
             ]
         ]
-
-
-onClickNoProp : msg -> Attribute msg
-onClickNoProp msg =
-    stopPropagationOn "click" (Json.map (\m -> ( m, True )) (Json.succeed msg))

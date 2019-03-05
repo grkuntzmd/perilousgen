@@ -33,6 +33,10 @@
             justify-items: start;
         }
         
+        .fas {
+            font-size: 1.5em;
+        }
+        
         .pad-left {
             padding-left: 10px;
         }
@@ -64,19 +68,6 @@
 
     <script src="app.js"></script>
     <script>
-        customElements.define("close-anchor", class extends HTMLElement {
-            constructor() {
-                super();
-                this.addEventListener("click", function(event) {
-                    var parent = event.target.closest(".close-after-select");
-                    var children = parent.querySelectorAll(".uk-open");
-                    children.forEach(function(el) {
-                        el.classList.remove("uk-open");
-                    })
-                });
-            }
-        });
-
         var app = Elm.Main.init({
             node: document.querySelector("main")
         });
