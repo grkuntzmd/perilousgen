@@ -14,7 +14,9 @@ type Msg
       -- Size-themes
     | GenThemeMsg Int
     | GenThemesMsg Int Int
-    | OffsetThemeMsg Int ( Int, Int )
     | OffsetThemesMsg Int
-    | SelectThemeMsg Int String
     | SelectThemesMsg Int
+      -- Themes
+    | CountdownThemeMsg Int Int Bool
+    | OffsetThemeMsg Int ( Int, Int )
+    | SelectThemeMsg Int String

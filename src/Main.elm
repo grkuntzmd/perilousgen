@@ -126,7 +126,7 @@ view model =
     , body =
         [ div
             [ attribute "uk-navbar" ""
-            , class "uk-navbar uk-navbar-container pad-left"
+            , class "uk-navbar uk-navbar-container uk-margin-small-left"
             ]
             [ div [ class "uk-navbar-left" ]
                 [ span [ class "uk-text-large" ] [ text "Perilous Gen" ] ]

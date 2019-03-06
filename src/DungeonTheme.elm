@@ -1,4 +1,11 @@
-module DungeonTheme exposing (DungeonThemeModel, dungeonTheme, dungeonThemeView, select)
+module DungeonTheme exposing
+    ( DungeonThemeModel
+    , DungeonThemeTracker
+    , dungeonTheme
+    , dungeonThemeView
+    , emptyTracker
+    , select
+    )
 
 import DungeonMsg exposing (Msg(..))
 import Html exposing (Html, a, button, div, i, li, span, text, ul)
@@ -7,12 +14,30 @@ import Html.Events exposing (onClick)
 import Icons exposing (dice)
 import List.Extra as List
 import Maybe.Extra as Maybe
+import Set exposing (Set)
 import Tables exposing (Count(..), TableType(..))
 
 
 type alias DungeonThemeModel m =
     { m
         | theme : Maybe String
+    }
+
+
+type alias DungeonThemeTracker =
+    { start : Int
+    , stop : Int
+    , checked : Set Int
+    , name : Maybe String
+    }
+
+
+emptyTracker : DungeonThemeTracker
+emptyTracker =
+    { start = 1
+    , stop = 1
+    , checked = Set.empty
+    , name = Nothing
     }
 
 
