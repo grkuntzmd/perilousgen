@@ -13,6 +13,9 @@ type Msg
     | SelectAreasMsg Int
       -- Size-themes
     | GenThemeMsg Int
+    | GenCountdownsMsg Int Int
+    | OffsetCountdownsMsg Int
+    | SelectCountdownsMsg Int
     | GenThemesMsg Int Int
     | OffsetThemesMsg Int
     | SelectThemesMsg Int

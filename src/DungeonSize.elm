@@ -14,8 +14,9 @@ import Tables exposing (GenRandomMsg, SelectMsg, TableType(..))
 type alias DungeonSizeModel m =
     { m
         | size : Maybe String
-        , areas : List (Maybe String)
         , themes : List DungeonThemeTracker
+        , countdowns : Int
+        , areas : List (Maybe String)
     }
 
 
@@ -123,7 +124,7 @@ dungeonSizeView model selectMsg genMsg =
         themesEnd =
             defaults.themeDie + defaults.themeDieMod
 
-        themeCounts =
+        counts msg =
             List.range themesStart themesEnd
                 |> List.map
                     (\i ->
@@ -131,11 +132,17 @@ dungeonSizeView model selectMsg genMsg =
                             [ classList [ ( "uk-active", i == defaults.themeCount ) ] ]
                             [ a
                                 [ href "/perilousgen#dungeon"
-                                , onClick (SelectThemesMsg i)
+                                , onClick (msg i)
                                 ]
                                 [ text (String.fromInt i) ]
                             ]
                     )
+
+        themeCounts =
+            counts SelectThemesMsg
+
+        countdownCounts =
+            counts SelectCountdownsMsg
 
         areasStart =
             1 + defaults.areaDieMod
@@ -182,6 +189,18 @@ dungeonSizeView model selectMsg genMsg =
                 [ attribute "uk-dropdown" "mode: click", class "uk-dropdown" ]
                 [ ul [ class "uk-nav uk-dropdown-nav" ] themeCounts ]
             , span [ class "uk-label uk-margin-small-left" ] [ text (String.fromInt (List.length model.themes)) ]
+            ]
+        ]
+    , li []
+        [ div [ class "uk-inline" ]
+            [ span [ onClick (GenCountdownsMsg themesStart themesEnd) ] [ Icons.dice ]
+            , button
+                [ class "uk-button uk-button-default uk-margin-small-left uk-button-text", type_ "button" ]
+                [ text "Countdowns" ]
+            , div
+                [ attribute "uk-dropdown" "mode: click", class "uk-dropdown" ]
+                [ ul [ class "uk-nav uk-dropdown-nav" ] countdownCounts ]
+            , span [ class "uk-label uk-margin-small-left" ] [ text (String.fromInt model.countdowns) ]
             ]
         ]
     , li []

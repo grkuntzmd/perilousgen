@@ -109,6 +109,9 @@ update msg model =
             , Random.generate (OffsetThemeMsg index) (Random.pair (Random.int 1 12) (Random.int 1 12))
             )
 
+        GenCountdownsMsg start end ->
+            ( model, Random.generate OffsetCountdownsMsg (Random.int start end) )
+
         GenThemesMsg start end ->
             ( model, Random.generate OffsetThemesMsg (Random.int start end) )
 
@@ -120,6 +123,9 @@ update msg model =
         OffsetThemeMsg index offset ->
             ( setThemeName index (DungeonTheme.select offset), Cmd.none )
 
+        OffsetCountdownsMsg value ->
+            ( { model | countdowns = value }, Cmd.none )
+
         OffsetThemesMsg value ->
             ( emptyThemes value, Cmd.none )
 
@@ -130,6 +136,9 @@ update msg model =
 
         SelectThemeMsg index name ->
             ( setThemeName index (Just name), Cmd.none )
+
+        SelectCountdownsMsg value ->
+            ( { model | countdowns = value }, Cmd.none )
 
         SelectThemesMsg value ->
             ( emptyThemes value, Cmd.none )
