@@ -4,4 +4,4 @@
 
 This is a generator for tables from [The Perilous Wilds](https://lampblack-and-brimstone.com/shop/the-perilous-wilds-print-on-demand-edition/).
 
-The app can be run from https://grkuntzmd.github.io/perilousgen/.
+The app can be run from https://grkuntzmd.github.io/perilousgen/. The only Home link that current works (sort of) is "Plumb the Depths".

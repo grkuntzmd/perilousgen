@@ -6,7 +6,7 @@ import Char
 import Dungeon
 import DungeonMsg
 import Html exposing (Html, a, button, div, h4, hr, i, li, p, span, text, ul)
-import Html.Attributes exposing (attribute, class, href, id, target, type_)
+import Html.Attributes exposing (attribute, class, disabled, href, id, target, type_)
 import Parser exposing ((|.), (|=))
 import Result exposing (Result(..))
 import Route exposing (Route(..), match)
@@ -193,11 +193,11 @@ homeView : Model -> Html Msg
 homeView _ =
     div [ class "uk-container uk-container-expand uk-padding-small" ]
         [ ul [ class "uk-nav uk-nav-primary uk-nav-center uk-margin-small-auto-vertical" ]
-            [ li [] [ a [ href "#" ] [ text "Lead the Way" ] ]
-            , li [] [ a [ href "#" ] [ text "See the World" ] ]
-            , li [] [ a [ href "#" ] [ text "Weather the Storm" ] ]
-            , li [] [ a [ href "#" ] [ text "Ask the Fates" ] ]
+            [ li [] [ a [ disabled True, href "#" ] [ text "Lead the Way" ] ]
+            , li [] [ a [ disabled True, href "#" ] [ text "See the World" ] ]
+            , li [] [ a [ disabled True, href "#" ] [ text "Weather the Storm" ] ]
+            , li [] [ a [ disabled True, href "#" ] [ text "Ask the Fates" ] ]
             , li [] [ a [ href "/perilousgen#dungeon" ] [ text "Plumb the Depths" ] ]
-            , li [] [ a [ href "#" ] [ text "Name Every Person" ] ]
+            , li [] [ a [ disabled True, href "#" ] [ text "Name Every Person" ] ]
             ]
         ]
