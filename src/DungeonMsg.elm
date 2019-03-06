@@ -18,5 +18,9 @@ type Msg
     | SelectThemesMsg Int
       -- Themes
     | CountdownThemeMsg Int Int Bool
+    | GenRandomElementMsg Int TableType
+    | OffsetElementMsg Int Int
     | OffsetThemeMsg Int ( Int, Int )
+    | SelectElementMsg Int TableType String
     | SelectThemeMsg Int String
+    | StopThemeMsg Int String

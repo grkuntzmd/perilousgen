@@ -6,7 +6,8 @@ import DungeonFunction exposing (dungeonFunctionView)
 import DungeonMsg exposing (Msg(..))
 import DungeonRuination exposing (dungeonRuinationView)
 import DungeonSize exposing (dungeonSize, dungeonSizeView)
-import DungeonTheme exposing (DungeonThemeTracker, emptyTracker)
+import DungeonTheme exposing (DungeonThemeTracker, initTracker)
+import Element
 import Html exposing (Html, a, button, dd, div, dl, dt, input, li, nav, p, span, text, ul)
 import Html.Attributes exposing (attribute, checked, class, href, id, min, placeholder, style, type_, value)
 import Html.Events exposing (onCheck, onInput)
@@ -15,8 +16,9 @@ import Icons exposing (file, home)
 import List.Extra as List
 import Maybe.Extra as Maybe
 import Random
-import Set exposing (Set)
+import Set
 import Tables exposing (OffsetPayload(..), TableType(..))
+import Tuple
 
 
 type alias Model =
@@ -54,14 +56,10 @@ update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     let
         emptyThemes value =
-            { model | themes = List.repeat value emptyTracker |> renumberThemeIndexes }
+            { model | themes = List.repeat value (initTracker Nothing) |> resetThemeIndexes }
 
         setThemeName index name =
-            { model
-                | themes =
-                    List.setAt index { start = 1, stop = 1, checked = Set.empty, name = name } model.themes
-                        |> renumberThemeIndexes
-            }
+            { model | themes = List.setAt index (initTracker name) model.themes |> resetThemeIndexes }
     in
     case msg of
         GenRandomMsg tableType ->
@@ -103,6 +101,9 @@ update msg model =
             , Cmd.none
             )
 
+        GenRandomElementMsg index _ ->
+            ( model, Random.generate (OffsetElementMsg index) (Random.int 1 12) )
+
         GenThemeMsg index ->
             ( model
             , Random.generate (OffsetThemeMsg index) (Random.pair (Random.int 1 12) (Random.int 1 12))
@@ -111,11 +112,21 @@ update msg model =
         GenThemesMsg start end ->
             ( model, Random.generate OffsetThemesMsg (Random.int start end) )
 
+        OffsetElementMsg index offset ->
+            ( { model | themes = List.updateAt index (\t -> { t | element = Element.select offset }) model.themes }
+            , Cmd.none
+            )
+
         OffsetThemeMsg index offset ->
             ( setThemeName index (DungeonTheme.select offset), Cmd.none )
 
         OffsetThemesMsg value ->
             ( emptyThemes value, Cmd.none )
+
+        SelectElementMsg index _ name ->
+            ( { model | themes = List.updateAt index (\t -> { t | element = Just name }) model.themes }
+            , Cmd.none
+            )
 
         SelectThemeMsg index name ->
             ( setThemeName index (Just name), Cmd.none )
@@ -123,10 +134,68 @@ update msg model =
         SelectThemesMsg value ->
             ( emptyThemes value, Cmd.none )
 
+        StopThemeMsg index str ->
+            let
+                renumber themes =
+                    List.foldl
+                        (\t ( m, a ) ->
+                            let
+                                range =
+                                    t.stop - t.start
 
-renumberThemeIndexes : List DungeonThemeTracker -> List DungeonThemeTracker
-renumberThemeIndexes themes =
-    List.indexedMap (\i t -> { t | start = i + 1, stop = i + 1 }) themes
+                                start =
+                                    m + 1
+
+                                stop =
+                                    start + range
+
+                                stopText =
+                                    if String.isEmpty t.stopText then
+                                        ""
+
+                                    else
+                                        String.fromInt stop
+                            in
+                            ( max m stop, { t | start = start, stop = stop, stopText = stopText } :: a )
+                        )
+                        ( 0, [] )
+                        themes
+                        |> Tuple.second
+                        |> List.reverse
+            in
+            ( { model
+                | themes =
+                    List.updateAt index
+                        (\t ->
+                            let
+                                ( stop, stopText ) =
+                                    case String.toInt str of
+                                        Just value ->
+                                            ( value, String.fromInt value )
+
+                                        Nothing ->
+                                            ( t.stop, str )
+                            in
+                            { t | stop = stop, stopText = stopText }
+                        )
+                        model.themes
+                        |> renumber
+              }
+            , Cmd.none
+            )
+
+
+resetThemeIndexes : List DungeonThemeTracker -> List DungeonThemeTracker
+resetThemeIndexes themes =
+    List.indexedMap
+        (\i t ->
+            { t
+                | start = i + 1
+                , stop = i + 1
+                , stopText = String.fromInt (i + 1)
+            }
+        )
+        themes
 
 
 updateGenRandom : Model -> TableType -> ( Model, Cmd Msg )
@@ -155,6 +224,9 @@ updateGenRandom model tableType =
             ( model
             , Random.generate (Singleton >> OffsetMsg DungeonSize) (Random.int 1 12)
             )
+
+        Element ->
+            ( model, Cmd.none )
 
         Humanoid ->
             ( model
@@ -196,8 +268,8 @@ updateOffset model tableType payload =
                     Maybe.map .name row
 
                 themes =
-                    Maybe.unwrap [] (\r -> List.repeat r.themeCount emptyTracker) row
-                        |> renumberThemeIndexes
+                    Maybe.unwrap [] (\r -> List.repeat r.themeCount (initTracker Nothing)) row
+                        |> resetThemeIndexes
 
                 areas =
                     Maybe.unwrap [] (\r -> List.repeat r.areaCount Nothing) row
@@ -255,8 +327,8 @@ updateSelect model tableType name =
                     List.find (.name >> (==) name) dungeonSize
 
                 themes =
-                    Maybe.unwrap [] (\r -> List.repeat r.themeCount emptyTracker) row
-                        |> renumberThemeIndexes
+                    Maybe.unwrap [] (\r -> List.repeat r.themeCount (initTracker Nothing)) row
+                        |> resetThemeIndexes
 
                 areas =
                     Maybe.unwrap [] (\r -> List.repeat r.areaCount Nothing) row
@@ -269,6 +341,9 @@ updateSelect model tableType name =
               }
             , Cmd.none
             )
+
+        Element ->
+            ( model, Cmd.none )
 
         Humanoid ->
             ( { model | humanoid = Just name, beast1 = Nothing, beast2 = Nothing }, Cmd.none )
@@ -336,11 +411,10 @@ summaryView model =
 themesView : Model -> Html Msg
 themesView model =
     let
-        themeDieSize : List DungeonThemeTracker -> Html Msg
-        themeDieSize items =
+        themeDieSize themes =
             let
                 max_ =
-                    List.foldl (\{ stop } m -> max m stop) 0 items
+                    List.foldl (\{ stop } m -> max m stop) 0 themes
             in
             if max_ > 0 then
                 span [ class "uk-margin-small-left" ] [ text ("(1d" ++ String.fromInt max_ ++ ")") ]
@@ -386,30 +460,38 @@ themesView model =
         , dd []
             [ div [ class "dungeon-theme" ]
                 (List.indexedMap
-                    (\i { start, stop, checked, name } ->
-                        [ div []
-                            [ span
-                                [ style "visibility"
-                                    (if start == stop then
-                                        "hidden"
+                    (\index { start, stop, stopText, checked, name, element } ->
+                        let
+                            visibility =
+                                if start == stop then
+                                    "hidden"
 
-                                     else
-                                        "visible"
-                                    )
-                                ]
-                                [ text (String.fromInt start ++ " - ") ]
-                            , input
-                                [ class "uk-input uk-form-width-xsmall"
-
-                                -- , onInput (CountdownThemeMsg index i)
-                                , type_ "number"
-                                , min "1"
-                                , value (String.fromInt stop)
-                                ]
-                                []
+                                else
+                                    "visible"
+                        in
+                        [ span [ style "visibility" visibility ] [ text (String.fromInt start) ]
+                        , span [ style "visibility" visibility ] [ text "–" ]
+                        , input
+                            [ class "uk-input uk-form-width-xsmall"
+                            , onInput (StopThemeMsg index)
+                            , type_ "number"
+                            , min "1"
+                            , value stopText
                             ]
-                        , div [] [ text (Maybe.withDefault "none" name) ]
-                        , div [] (checkboxes i checked)
+                            []
+                        , div []
+                            [ text
+                                (Maybe.withDefault "none" name
+                                    ++ (case element of
+                                            Just ele ->
+                                                " (" ++ ele ++ ")"
+
+                                            Nothing ->
+                                                ""
+                                       )
+                                )
+                            ]
+                        , div [] (checkboxes index checked)
                         ]
                     )
                     model.themes

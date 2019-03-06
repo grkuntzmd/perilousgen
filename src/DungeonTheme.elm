@@ -3,45 +3,67 @@ module DungeonTheme exposing
     , DungeonThemeTracker
     , dungeonTheme
     , dungeonThemeView
-    , emptyTracker
+    , initTracker
     , select
     )
 
 import DungeonMsg exposing (Msg(..))
-import Html exposing (Html, a, button, div, i, li, span, text, ul)
+import Element exposing (ElementModel, elementView)
+import Html exposing (Html, a, button, div, li, span, text, ul)
 import Html.Attributes exposing (attribute, class, classList, href, type_)
 import Html.Events exposing (onClick)
 import Icons exposing (dice)
 import List.Extra as List
 import Maybe.Extra as Maybe
 import Set exposing (Set)
-import Tables exposing (Count(..), TableType(..))
+import Tables exposing (Count(..), GenRandomMsg, SelectMsg, TableType(..))
 
 
 type alias DungeonThemeModel m =
     { m
         | theme : Maybe String
+        , element : Maybe String
     }
 
 
 type alias DungeonThemeTracker =
     { start : Int
     , stop : Int
+    , stopText : String
     , checked : Set Int
     , name : Maybe String
+    , element : Maybe String
     }
 
 
-emptyTracker : DungeonThemeTracker
-emptyTracker =
+initTracker : Maybe String -> DungeonThemeTracker
+initTracker name =
     { start = 1
     , stop = 1
+    , stopText = "1"
     , checked = Set.empty
-    , name = Nothing
+    , name = name
+    , element = Nothing
     }
 
 
-dungeonTheme : List ( String, Int, List ( Int, String, Maybe x ) )
+dungeonTheme :
+    List
+        ( String
+        , Int
+        , List
+            ( Int
+            , String
+            , Maybe
+                (Count
+                    (ElementModel m
+                     -> SelectMsg msg
+                     -> GenRandomMsg msg
+                     -> List (Html msg)
+                    )
+                )
+            )
+        )
 dungeonTheme =
     [ ( "Mundane"
       , 5
@@ -62,7 +84,7 @@ dungeonTheme =
     , ( "Unusual"
       , 9
       , [ ( 1, "creation/invention", Nothing )
-        , ( 2, "element", Nothing )
+        , ( 2, "element", Just (Single (elementView .element)) )
         , ( 3, "knowledge/learning", Nothing )
         , ( 4, "growth/expansion", Nothing )
         , ( 5, "deepening mystery", Nothing )
@@ -95,11 +117,17 @@ dungeonTheme =
 
 
 dungeonThemeView :
-    Maybe String
-    -> Int
-    -> Html Msg
-dungeonThemeView field index =
+    Int
+    -> DungeonThemeTracker
+    -> List (Html Msg)
+dungeonThemeView index tracker =
     let
+        name =
+            tracker.name
+
+        entry =
+            List.find (\( _, n, _ ) -> Just n == name) (List.concatMap (\( _, _, l ) -> l) dungeonTheme)
+
         items =
             List.concat <|
                 List.map
@@ -108,7 +136,7 @@ dungeonThemeView field index =
                             :: List.map
                                 (\( _, n, _ ) ->
                                     li
-                                        [ classList [ ( "uk-active", Maybe.unwrap False ((==) n) field ) ] ]
+                                        [ classList [ ( "uk-active", Maybe.unwrap False ((==) n) name ) ] ]
                                         [ a
                                             [ href "/perilousgen#dungeon"
                                             , onClick (SelectThemeMsg index n)
@@ -119,9 +147,6 @@ dungeonThemeView field index =
                                 entries
                     )
                     dungeonTheme
-
-        name =
-            Maybe.withDefault "none" field
     in
     li []
         [ div [ class "uk-inline" ]
@@ -132,9 +157,16 @@ dungeonThemeView field index =
             , div
                 [ attribute "uk-dropdown" "mode: click", class "uk-dropdown" ]
                 [ ul [ class "uk-nav uk-dropdown-nav" ] items ]
-            , span [ class "uk-label uk-margin-small-left" ] [ text name ]
+            , span [ class "uk-label uk-margin-small-left" ] [ text (Maybe.withDefault "none" name) ]
             ]
         ]
+        :: (case entry of
+                Just ( _, _, Just (Single t) ) ->
+                    t tracker (SelectElementMsg index) (GenRandomElementMsg index)
+
+                _ ->
+                    []
+           )
 
 
 select : ( Int, Int ) -> Maybe String

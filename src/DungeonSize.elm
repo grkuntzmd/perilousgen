@@ -2,14 +2,13 @@ module DungeonSize exposing (DungeonSizeModel, DungeonSizeRow, dungeonSize, dung
 
 import DungeonMsg exposing (Msg(..))
 import DungeonTheme exposing (DungeonThemeTracker, dungeonThemeView)
-import Html exposing (Html, a, button, div, i, li, span, text, ul)
+import Html exposing (Html, a, button, div, li, span, text, ul)
 import Html.Attributes exposing (attribute, class, classList, href, type_)
 import Html.Events exposing (onClick)
 import Icons exposing (dice)
 import List.Extra as List
 import Maybe.Extra as Maybe
 import Tables exposing (GenRandomMsg, SelectMsg, TableType(..))
-import Tuple
 
 
 type alias DungeonSizeModel m =
@@ -159,7 +158,7 @@ dungeonSizeView model selectMsg genMsg =
                     )
 
         themes =
-            List.indexedMap (\i t -> dungeonThemeView t.name i) model.themes
+            List.indexedMap dungeonThemeView model.themes |> List.concat
     in
     [ li []
         [ div [ class "uk-inline" ]

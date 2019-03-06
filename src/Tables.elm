@@ -8,7 +8,7 @@ module Tables exposing
     , simpleView
     )
 
-import Html exposing (Html, a, button, div, i, li, span, text, ul)
+import Html exposing (Html, a, button, div, li, span, text, ul)
 import Html.Attributes exposing (attribute, class, classList, href, type_)
 import Html.Events exposing (onClick)
 import Icons exposing (dice)
@@ -28,6 +28,7 @@ type TableType
     | DungeonFunction
     | DungeonRuination
     | DungeonSize
+    | Element
     | Humanoid
 
 
